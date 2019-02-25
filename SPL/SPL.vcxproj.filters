@@ -13,18 +13,48 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="signal processing library">
+      <UniqueIdentifier>{0d53d943-868e-433d-8352-e4ab729a8ea8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="signal processing library\audio file">
+      <UniqueIdentifier>{1b6a836c-5d01-4998-a0d5-f48a138becf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="signal processing library\basic tools">
+      <UniqueIdentifier>{265b6a74-2a5d-483a-bec3-25de82d54ae4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="signal processing library\reverb">
+      <UniqueIdentifier>{b61f6ae4-2dee-463c-8f5a-c02018648fce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="signal processing library\spectrum measurment">
+      <UniqueIdentifier>{9f359b22-a8f0-411a-99bc-729a92b6a6fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="signal processing library\limiter">
+      <UniqueIdentifier>{5dc2297f-dfa3-4d25-8f31-44e839ebebc6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>头文件</Filter>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="signal_processing_library.h">
+      <Filter>signal processing library</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="pch.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="SPL.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+    <ClInclude Include="audio file\dr_wav.h">
+      <Filter>signal processing library\audio file</Filter>
+    </ClInclude>
+    <ClInclude Include="audio file\dsdfile.h">
+      <Filter>signal processing library\audio file</Filter>
+    </ClInclude>
+    <ClInclude Include="audio file\wavfile.h">
+      <Filter>signal processing library\audio file</Filter>
+    </ClInclude>
+    <ClInclude Include="frame.h">
+      <Filter>signal processing library</Filter>
+    </ClInclude>
+    <ClInclude Include="stream.h">
+      <Filter>signal processing library</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
