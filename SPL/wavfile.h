@@ -1,10 +1,18 @@
 ﻿#pragma once
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "dr_wav.h"
+
+#ifndef DR_WAV_IMPLEMENTATION
+#define DR_WAV_IMPLEMENTATION
+#endif // DR_WAV_IMPLEMENTATION
+
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif // __cplusplus
+
+
 
 	// A package of the dr_wav library for easy to use.
 	typedef struct 
@@ -154,7 +162,7 @@ extern "C" {
 			mallocFlag = 1;
 		}
 
-		int16_t *pDataS16[2]{};
+		int16_t *pDataS16[2];
 		pDataS16[0] = tmp;
 		//FloatToS16(pDataFloat[0], nSamples, pDataS16[0]);	//drwav_f32_to_s16
 		drwav_f32_to_s16(pDataS16[0], pDataFloat[0], nSamples);
@@ -220,5 +228,5 @@ extern "C" {
 	}
 
 #ifdef __cplusplus
-}
+//}
 #endif // __cplusplus

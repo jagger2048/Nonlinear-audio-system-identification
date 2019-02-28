@@ -155,12 +155,13 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="audio file\dr_wav.h" />
-    <ClInclude Include="audio file\dsdfile.h" />
-    <ClInclude Include="audio file\wavfile.h" />
+    <ClInclude Include="dr_wav.h" />
+    <ClInclude Include="dsdfile.h" />
     <ClInclude Include="frame.h" />
+    <ClInclude Include="limiter.h" />
     <ClInclude Include="signal_processing_library.h" />
     <ClInclude Include="stream.h" />
+    <ClInclude Include="wavfile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

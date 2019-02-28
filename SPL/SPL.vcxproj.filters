@@ -33,22 +33,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="signal_processing_library.h">
       <Filter>signal processing library</Filter>
-    </ClInclude>
-    <ClInclude Include="audio file\dr_wav.h">
-      <Filter>signal processing library\audio file</Filter>
-    </ClInclude>
-    <ClInclude Include="audio file\dsdfile.h">
-      <Filter>signal processing library\audio file</Filter>
-    </ClInclude>
-    <ClInclude Include="audio file\wavfile.h">
-      <Filter>signal processing library\audio file</Filter>
     </ClInclude>
     <ClInclude Include="frame.h">
       <Filter>signal processing library</Filter>
@@ -56,5 +42,22 @@
     <ClInclude Include="stream.h">
       <Filter>signal processing library</Filter>
     </ClInclude>
+    <ClInclude Include="limiter.h">
+      <Filter>signal processing library</Filter>
+    </ClInclude>
+    <ClInclude Include="dr_wav.h">
+      <Filter>signal processing library\audio file</Filter>
+    </ClInclude>
+    <ClInclude Include="dsdfile.h">
+      <Filter>signal processing library\audio file</Filter>
+    </ClInclude>
+    <ClInclude Include="wavfile.h">
+      <Filter>signal processing library\audio file</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
