@@ -10,7 +10,7 @@
 #define M_PI 3.14.592654
 #endif // !M_PI
 #ifndef M_ABS
-#define M_ABS(x) (x)<0?-(x):(x)
+#define M_ABS(x) (x)<0?(-(x)):(x)
 #endif // !M_ABS
 
 typedef struct {
@@ -89,15 +89,20 @@ RmsLimiter* RmsLimiter_create(float threshold, float ratio, float kneeWidth, flo
 }
 //int RmsLimiter_set(int threshold,int ratio,int kneeWidth,int attackTime,int releaseTime,int makeUpGain,size_t samplerate);
 float RmsLimiter_process(RmsLimiter* self, float input, float& output) {
-	//if (M_ABS(input - 1e-10) < 1e-10)
+	//float tt = abs(input);
+	//if ( fabsf(input) < 1e-8  )
 	//{
+	//	// avoid log10( 0 ) return a -inf
 	//	output = input;
 	//	return output;
 	//}
+
 	//------- Convert input to dB -------//
 	//float inputGain = 20 * log10( M_ABS(input) );	// the gain of input sample in dB |x_dB|
-	self->rms = (1- 0.0001) * self->rms + 0.0001 * input*input;
-	float inputGain = 10*log10(self->rms);
+	float inputGain = 20 * log10( M_ABS(input) + 0.000000000001);	// the gain of input sample in dB |x_dB|
+
+	//self->rms = (1- 0.0001) * self->rms + 0.0001 * input*input;// y(n) = (1-alpha)*y(n-1) + alpha*x(n)^2
+	//float inputGain = 10*log10(self->rms); // RMS version
 
 	//------- Running gain computer -------//
 	//self->gc = RmsLimiter_runGainComputer(self,inputGain);
