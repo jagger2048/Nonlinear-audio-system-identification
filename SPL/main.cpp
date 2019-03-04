@@ -12,7 +12,7 @@
 #include "dr_wav.h"
 
 #include <fstream>
-
+#include <iostream>
 #include "limiter.h"
 using namespace std;
 int main()
@@ -26,24 +26,25 @@ int main()
 	wavfile = wavfile_read("limit .wav");
 
 	RmsLimiter* limiter = RmsLimiter_create(
-											-30,	//T
-											5,	// ratio
-											1,	// kneeWidth
-											0.05,//at
-											0.2,//rt
-											0,// makeup gain
+											-15,	// T
+											5,		// ratio
+											1,		// kneeWidth
+											0.05,	// at
+											0.2,	// rt
+											0,		// makeup gain
 											wavfile->sampleRate	);
 	size_t numSamples = wavfile->totalPCMFrameCount;
 	float* output = (float*)malloc(sizeof(float) * numSamples);
-	float tmp = 0;
-	//for (size_t n = 0; n < numSamples; n++)
-	for (int n = -150; n < 30; n++)
+	float linearOutput = 0;
+	float linearInput = 0;
+	for (float n = -50; n < 10; n+=0.01)	// Test case: -50 dB->10 dB step 0.1 dB
 	{
-		// Test case: -150 dB->20 dB
 		//tmp = RmsLimiter_process(limiter, wavfile->pDataFloat[0][n], output[n]);
 		//RmsLimiter_process(limiter, powf(10,n/20.0f), tmp);
-		RmsLimiter_process(limiter, 1, tmp);
-		fo << powf(10, n / 20.0f) <<"    "<< n<<"    "<<limiter->x_sc<<"    "<<limiter->gs<<"    "<<tmp<<"\n";
+		linearInput = powf(10, n / 20.0f);
+		RmsLimiter_process(limiter, linearInput, linearOutput);
+		fo << linearInput <<"    "<< linearOutput <<"    "<<20*log10(fabsf(linearOutput)) <<endl;
+		cout<< linearInput << "    " << linearOutput << "    " << 20 * log10(fabsf(linearOutput)) << endl;
 	}
 	//wavfile_write_f32("limit3 .wav", &output, numSamples, 1, wavfile->sampleRate);
 	wavfile_destory(wavfile);

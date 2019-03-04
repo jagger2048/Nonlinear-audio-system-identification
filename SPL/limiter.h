@@ -24,7 +24,6 @@ typedef struct {
 
 	// private parameters
 	size_t samplerate;
-	float levelDetected ;
 	float gc;				// gain computer
 	float gs;				// gain smoothing
 	float alphaA;			// attack time factor
@@ -34,115 +33,108 @@ typedef struct {
 	float rms;
 }
 RmsLimiter;
-static inline void RmsLimiter_runGainSmoothing(RmsLimiter* self, float gain) {
-	if (gain <self->gs)
+static inline void RmsLimiter_runGainSmoothing(RmsLimiter* obj, float gain) {
+	if (gain <obj->gs)
 	{
-		self->gs = self->alphaA * self->gs + (1.0f - self->alphaA)*gain;
+		obj->gs = obj->alphaA * obj->gs + (1.0f - obj->alphaA)*gain;
 	}
 	else
 	{
-		self->gs = self->alphaR * self->gs + (1.0f - self->alphaR)*gain;
+		obj->gs = obj->alphaR * obj->gs + (1.0f - obj->alphaR)*gain;
 	}
 }
-static inline float RmsLimiter_runGainComputer(RmsLimiter* self,float x_dB) {
+static inline float RmsLimiter_runGainComputer(RmsLimiter* obj,float x_dB) {
 	float gc = 0;
 	float x_sc = 0;
-	float tmp2 = x_dB - self->threshold + self->kneeWidth / 2.0f;
-	if (x_dB < self->threshold - self->kneeWidth / 2.0f)
+	float tmp2 = x_dB - obj->threshold + obj->kneeWidth / 2.0f;
+	if (x_dB < obj->threshold - obj->kneeWidth / 2.0f)
 	{
 		x_sc = x_dB;
 	}
-	else if (x_dB <= self->threshold - self->kneeWidth / 2.0f  )
+	else if (x_dB <= obj->threshold - obj->kneeWidth / 2.0f  )
 	{
-		x_sc = x_dB + (1.0f / self->ratio - 1)*(tmp2*tmp2) / (2.0f*self->kneeWidth);
+		x_sc = x_dB + (1.0f / obj->ratio - 1)*(tmp2*tmp2) / (2.0f*obj->kneeWidth);
 	}
 	else 
 	{
-		x_sc = self->threshold + (x_dB - self->threshold) / self->ratio;
+		x_sc = obj->threshold + (x_dB - obj->threshold) / obj->ratio;
 	}
 	return x_sc - x_dB;	// return gc
 }
 RmsLimiter* RmsLimiter_create(float threshold, float ratio, float kneeWidth, float attackTime, float releaseTime, float makeUpGain, float samplerate) {
-	RmsLimiter* self = (RmsLimiter*)malloc(sizeof(RmsLimiter));
-	if (!self)
+	RmsLimiter* obj = (RmsLimiter*)malloc(sizeof(RmsLimiter));
+	if (!obj)
 	{
 		return NULL;
 	}
-	self->threshold = threshold;
-	self->ratio = ratio;
-	self->kneeWidth = kneeWidth;
-	self->attackTime = attackTime;
-	self->releaseTime = releaseTime;
-	self->makeUpGain = makeUpGain;
-	self->samplerate = samplerate;
+	obj->threshold = threshold;
+	obj->ratio = ratio;
+	obj->kneeWidth = kneeWidth;
+	obj->attackTime = attackTime;
+	obj->releaseTime = releaseTime;
+	obj->makeUpGain = makeUpGain;
+	obj->samplerate = samplerate;
 
 	//
-	self->alphaA = exp( -log(9.0f) / (double)(self->samplerate * self->attackTime) );
-	self->alphaR = exp( -log(9.0f) / (double)(self->samplerate * self->releaseTime) );
+	obj->alphaA = expf( -log(9.0f) / (double)(obj->samplerate * obj->attackTime) );
+	obj->alphaR = expf( -log(9.0f) / (double)(obj->samplerate * obj->releaseTime) );
 
-	self->levelDetected = 0;
-	self->gc = 0;
-	self->gs = 0;
-	self->x_sc = 0;
-	self->rms = 0.01;
-	return self;
+	obj->gc = 0;
+	obj->gs = 0;
+	obj->x_sc = 0;
+	obj->rms = 0.01;
+	return obj;
 }
 //int RmsLimiter_set(int threshold,int ratio,int kneeWidth,int attackTime,int releaseTime,int makeUpGain,size_t samplerate);
-float RmsLimiter_process(RmsLimiter* self, float input, float& output) {
-	//float tt = abs(input);
-	//if ( fabsf(input) < 1e-8  )
-	//{
-	//	// avoid log10( 0 ) return a -inf
-	//	output = input;
-	//	return output;
-	//}
+float RmsLimiter_process(RmsLimiter* obj, float input, float& output) {
+	//	input:	linear input data
+	//	output:	linear output data
 
 	//------- Convert input to dB -------//
-	//float inputGain = 20 * log10( M_ABS(input) );	// the gain of input sample in dB |x_dB|
-	float inputGain = 20 * log10( M_ABS(input) + 0.000000000001);	// the gain of input sample in dB |x_dB|
+	//float inputGain = 20 * log10( M_ABS(input) + 0.00001);	// the gain of input sample in dB |x_dB|
+	float inputGain = 20 * log10( fabsf(input) + 0.00001);	// the gain of input sample in dB |x_dB|
 
-	//self->rms = (1- 0.0001) * self->rms + 0.0001 * input*input;// y(n) = (1-alpha)*y(n-1) + alpha*x(n)^2
-	//float inputGain = 10*log10(self->rms); // RMS version
+	//obj->rms = (1- 0.0001) * obj->rms + 0.0001 * input*input;// y(n) = (1-alpha)*y(n-1) + alpha*x(n)^2
+	//float inputGain = 10*log10(obj->rms); // RMS version
 
 	//------- Running gain computer -------//
-	//self->gc = RmsLimiter_runGainComputer(self,inputGain);
-	float tmp2 = inputGain - self->threshold + self->kneeWidth / 2.0f;
-	if (inputGain < self->threshold - self->kneeWidth / 2.0f)
+	float tmp2 = inputGain - obj->threshold + obj->kneeWidth / 2.0f;
+	if (inputGain < obj->threshold - obj->kneeWidth / 2.0f)
 	{
-		self->x_sc = inputGain;
+		obj->x_sc = inputGain;
 	}
-	else if (inputGain >= self->threshold - self->kneeWidth / 2.0f)
+	else if (inputGain > obj->threshold + obj->kneeWidth / 2.0f)
 	{
-		self->x_sc = inputGain + (1.0f / self->ratio - 1)*(tmp2*tmp2) / (2.0f*self->kneeWidth);
+		obj->x_sc = obj->threshold + (inputGain - obj->threshold) / obj->ratio;
+
 	}
 	else
 	{
-		self->x_sc = self->threshold + (inputGain - self->threshold) / self->ratio;
+		obj->x_sc = inputGain + (1.0f / obj->ratio - 1)*(tmp2*tmp2) / (2.0f*obj->kneeWidth);
 	}
-	self->gc = self->x_sc - inputGain;
+	obj->gc = obj->x_sc - inputGain;
 
 
 	//------- Running gain smoothing -------//
-	if (self->gc < self->gs)
+	if (obj->gc < obj->gs)
 	{
-		self->gs = self->alphaA * self->gs + (1.0f - self->alphaA)*self->gc;
+		obj->gs = obj->alphaA * obj->gs + (1.0f - obj->alphaA)*obj->gc;
 	}
 	else
 	{
-		self->gs = self->alphaR * self->gs + (1.0f - self->alphaR)*self->gc;
+		obj->gs = obj->alphaR * obj->gs + (1.0f - obj->alphaR)*obj->gc;
 	}
 
 
 	//------- Running Makeup Gain -------//
-	// to be completed.
-	//self->makeUpGain = (-x_sc)_{ x_dB = 0 }
-	float gainMadeUp = self->gs + self->makeUpGain;
+	// TBD.
+	//obj->makeUpGain = (-x_sc)_{ x_dB = 0 }
+	float gainMadeUp = obj->gs + obj->makeUpGain;
 
 
 	//------- Applying gain -------//
-	float linearGain = pow(10.0, gainMadeUp / 20.0f);
+	float linearGain = powf(10.0, gainMadeUp / 20.0f);
 	output = input * linearGain;
-
 
 	return output;
 
