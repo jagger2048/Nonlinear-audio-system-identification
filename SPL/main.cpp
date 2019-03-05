@@ -37,14 +37,14 @@ int main()
 	float* output = (float*)malloc(sizeof(float) * numSamples);
 	float linearOutput = 0;
 	float linearInput = 0;
-	for (float n = -50; n < 10; n+=0.01)	// Test case: -50 dB->10 dB step 0.1 dB
+	for (float n = -50; n < 10; n+=0.0001)	// Test case: -50 dB->10 dB step 0.1 dB
 	{
 		//tmp = RmsLimiter_process(limiter, wavfile->pDataFloat[0][n], output[n]);
 		//RmsLimiter_process(limiter, powf(10,n/20.0f), tmp);
-		linearInput = powf(10, n / 20.0f);
+		linearInput = powf(10, n / 20.0f);	// db -> v
 		RmsLimiter_process(limiter, linearInput, linearOutput);
-		fo << linearInput <<"    "<< linearOutput <<"    "<<20*log10(fabsf(linearOutput)) <<endl;
-		cout<< linearInput << "    " << linearOutput << "    " << 20 * log10(fabsf(linearOutput)) << endl;
+		fo << linearInput <<"    "<< linearOutput <<"    "<< 10 * log10(limiter->rms)<<endl;
+		//cout<< linearInput << "    " << linearOutput << "    " << 20 * log10(fabsf(linearOutput)) << endl;
 	}
 	//wavfile_write_f32("limit3 .wav", &output, numSamples, 1, wavfile->sampleRate);
 	wavfile_destory(wavfile);

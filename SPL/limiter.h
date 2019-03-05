@@ -76,8 +76,8 @@ RmsLimiter* RmsLimiter_create(float threshold, float ratio, float kneeWidth, flo
 	obj->samplerate = samplerate;
 
 	//
-	obj->alphaA = expf( -log(9.0f) / (double)(obj->samplerate * obj->attackTime) );
-	obj->alphaR = expf( -log(9.0f) / (double)(obj->samplerate * obj->releaseTime) );
+	obj->alphaA = expf( -logf(9.0f) / (double)(obj->samplerate * obj->attackTime) );
+	obj->alphaR = expf( -logf(9.0f) / (double)(obj->samplerate * obj->releaseTime) );
 
 	obj->gc = 0;
 	obj->gs = 0;
@@ -91,27 +91,43 @@ float RmsLimiter_process(RmsLimiter* obj, float input, float& output) {
 	//	output:	linear output data
 
 	//------- Convert input to dB -------//
-	//float inputGain = 20 * log10( M_ABS(input) + 0.00001);	// the gain of input sample in dB |x_dB|
-	float inputGain = 20 * log10( fabsf(input) + 0.00001);	// the gain of input sample in dB |x_dB|
+	// Note that we should use the rms detector instead of peak detector
 
-	//obj->rms = (1- 0.0001) * obj->rms + 0.0001 * input*input;// y(n) = (1-alpha)*y(n-1) + alpha*x(n)^2
-	//float inputGain = 10*log10(obj->rms); // RMS version
+	// Peak limite version:
+	//float inputGain = 20 * log10( fabsf(input) + 0.00001);	// the gain of input sample in dB |x_dB|
+
+	// Rms version
+	// Formula : y(n) = alpha*y(n-1) + (1-alpha)*x(n)^2
+	obj->rms = obj->alphaA * obj->rms + (1 - obj->alphaA) * input * input;
+	float inputGain = 10*log10(obj->rms); 
 
 	//------- Running gain computer -------//
-	float tmp2 = inputGain - obj->threshold + obj->kneeWidth / 2.0f;
+	//float tmp2 = inputGain - obj->threshold + obj->kneeWidth / 2.0f;	// for peak limiter
 	if (inputGain < obj->threshold - obj->kneeWidth / 2.0f)
 	{
 		obj->x_sc = inputGain;
 	}
 	else if (inputGain > obj->threshold + obj->kneeWidth / 2.0f)
 	{
-		obj->x_sc = obj->threshold + (inputGain - obj->threshold) / obj->ratio;
+		//obj->x_sc = obj->threshold + (inputGain - obj->threshold) / obj->ratio;	// compressor
+		obj->x_sc = obj->threshold;	// limiter 
 
 	}
 	else
 	{
-		obj->x_sc = inputGain + (1.0f / obj->ratio - 1)*(tmp2*tmp2) / (2.0f*obj->kneeWidth);
+		//obj->x_sc = inputGain + (1.0f / obj->ratio - 1)*(tmp2*tmp2) / (2.0f*obj->kneeWidth); // compressor
+		if (!obj->kneeWidth)
+		{
+			obj->x_sc = inputGain - (inputGain - obj->threshold + obj->kneeWidth / 2.0f)
+				*	(inputGain - obj->threshold + obj->kneeWidth / 2.0f)
+				/ (2.0f*obj->kneeWidth);
+		}
+		else
+		{
+			obj->x_sc = obj->threshold;
+		}
 	}
+
 	obj->gc = obj->x_sc - inputGain;
 
 
