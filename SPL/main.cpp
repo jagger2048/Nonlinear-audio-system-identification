@@ -13,10 +13,53 @@
 
 #include <fstream>
 #include <iostream>
-#include "limiter.h"
+#include "rms_limiter.h"
+#include "peak_limiter.h"
+
+#include "dynamic_bass_boost.h"
 using namespace std;
 int main()
 {
+	WAV* wavfile;
+	wavfile = wavfile_read("dukou_noReverb.wav");
+	size_t samplerate = wavfile->sampleRate;
+	size_t totalSample = wavfile->totalPCMFrameCount;
+	float* output = (float*)malloc(sizeof(float) * totalSample);	// mono data
+	// DBB initialize
+	DBB* db = createDBB(samplerate);
+	Biquad *prefilter = createBiquad(samplerate, FreFilterCoeffs[0], FreFilterCoeffs[1]);
+	Biquad *state1FIlter = createBiquad(samplerate, State1FilterCoeffs[0], State1FilterCoeffs[1]);
+	Biquad *state2FIlter = createBiquad(samplerate, State2FilterCoeffs[0], State2FilterCoeffs[1]);
+	RmsLimiter* state1Limiter = createRmsLimiter(-24, 5, 0.05, 0.2, 0, samplerate);
+	Compressor* state2SoftClip = createCompressor(-4.4, 6, 5, 0.05, 0.2, 0, samplerate);
+	float tmp1 = 0;
+	float tmp2 = 0;
+	float tmp3 = 0;
+	float state1 = 0;
+	for (size_t n = 0; n < totalSample; n++)
+	{
+		runDBB(db, wavfile->pDataFloat[0][n], output[n]);
+		////runBiquad(state2FIlter, wavfile->pDataFloat[0][n] , tmp1);
+		//runBiquad(state1FIlter, tmp1, tmp2);
+		//state1 = tmp1 + runRmsLimiter(state1Limiter, tmp2, tmp3);
+		//// state 2
+		//runBiquad(state2FIlter, state1, tmp1);
+		//runCompressor(state2SoftClip, tmp1, tmp2);
+		//output[n] = (state1 + tmp2) * 0.5;
+		//output[n] = tmp1;
+	}
+	wavfile_write_f32("State22 output.wav", &output, totalSample, 1, samplerate);
+
+	wavfile_destory(wavfile);
+	freeDBB(db);
+	freeBiquad(prefilter);
+	freeBiquad(state1FIlter);
+	freeBiquad(state2FIlter);
+	freeRmsLimiter(state1Limiter);
+	freeCompressor(state2SoftClip);
+	return 0;
+}
+/*
 	FILE *fp;
 	ofstream fo;
 	fo.open("limiter.txt", ios::out);
@@ -25,10 +68,9 @@ int main()
 	WAV *wavfile = wavfile_create();
 	wavfile = wavfile_read("limit .wav");
 
-	RmsLimiter* limiter = RmsLimiter_create(
-											-15,	// T
-											5,		// ratio
-											1,		// kneeWidth
+	RmsLimiter* limiter = createRmsLimiter(
+											-21,	// T
+											5,		// kneeWidth
 											0.05,	// at
 											0.2,	// rt
 											0,		// makeup gain
@@ -39,20 +81,19 @@ int main()
 	float linearInput = 0;
 	for (float n = -50; n < 10; n+=0.0001)	// Test case: -50 dB->10 dB step 0.1 dB
 	{
-		//tmp = RmsLimiter_process(limiter, wavfile->pDataFloat[0][n], output[n]);
-		//RmsLimiter_process(limiter, powf(10,n/20.0f), tmp);
 		linearInput = powf(10, n / 20.0f);	// db -> v
-		RmsLimiter_process(limiter, linearInput, linearOutput);
-		fo << linearInput <<"    "<< linearOutput <<"    "<< 10 * log10(limiter->rms)<<endl;
-		//cout<< linearInput << "    " << linearOutput << "    " << 20 * log10(fabsf(linearOutput)) << endl;
+		runRmsLimiter(limiter, linearInput, linearOutput);
+		fo << linearInput <<"    "<< linearOutput <<endl;
 	}
+
 	//wavfile_write_f32("limit3 .wav", &output, numSamples, 1, wavfile->sampleRate);
 	wavfile_destory(wavfile);
 	fo.close();// close
 	free(output);
+	freeRmsLimiter(limiter);
 	return 0;
-}
 
+*/
 
 /*
 	spl_frame_st *pFrame = spl_frame_new(48000, 1024);

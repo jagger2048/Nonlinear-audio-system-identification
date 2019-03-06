@@ -28,7 +28,7 @@
     <Filter Include="signal processing library\spectrum measurment">
       <UniqueIdentifier>{9f359b22-a8f0-411a-99bc-729a92b6a6fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="signal processing library\limiter">
+    <Filter Include="signal processing library\dynamics processor">
       <UniqueIdentifier>{5dc2297f-dfa3-4d25-8f31-44e839ebebc6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -42,9 +42,6 @@
     <ClInclude Include="stream.h">
       <Filter>signal processing library</Filter>
     </ClInclude>
-    <ClInclude Include="limiter.h">
-      <Filter>signal processing library</Filter>
-    </ClInclude>
     <ClInclude Include="dr_wav.h">
       <Filter>signal processing library\audio file</Filter>
     </ClInclude>
@@ -53,6 +50,21 @@
     </ClInclude>
     <ClInclude Include="wavfile.h">
       <Filter>signal processing library\audio file</Filter>
+    </ClInclude>
+    <ClInclude Include="compressor.h">
+      <Filter>signal processing library\dynamics processor</Filter>
+    </ClInclude>
+    <ClInclude Include="rms_limiter.h">
+      <Filter>signal processing library\dynamics processor</Filter>
+    </ClInclude>
+    <ClInclude Include="peak_limiter.h">
+      <Filter>signal processing library\dynamics processor</Filter>
+    </ClInclude>
+    <ClInclude Include="biquad.h">
+      <Filter>signal processing library</Filter>
+    </ClInclude>
+    <ClInclude Include="dynamic_bass_boost.h">
+      <Filter>signal processing library</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
