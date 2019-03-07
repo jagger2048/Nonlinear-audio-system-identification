@@ -66,6 +66,9 @@
     <ClInclude Include="dynamic_bass_boost.h">
       <Filter>signal processing library</Filter>
     </ClInclude>
+    <ClInclude Include="response_measurement.h">
+      <Filter>signal processing library</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

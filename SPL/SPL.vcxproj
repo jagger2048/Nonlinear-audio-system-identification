@@ -161,6 +161,7 @@
     <ClInclude Include="dsdfile.h" />
     <ClInclude Include="dynamic_bass_boost.h" />
     <ClInclude Include="frame.h" />
+    <ClInclude Include="response_measurement.h" />
     <ClInclude Include="rms_limiter.h" />
     <ClInclude Include="peak_limiter.h" />
     <ClInclude Include="signal_processing_library.h" />
