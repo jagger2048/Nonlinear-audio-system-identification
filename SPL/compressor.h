@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 /**
 *	The Implement of the compressor
 *

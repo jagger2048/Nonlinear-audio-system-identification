@@ -31,6 +31,9 @@
     <Filter Include="signal processing library\dynamics processor">
       <UniqueIdentifier>{5dc2297f-dfa3-4d25-8f31-44e839ebebc6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="signal processing library\FFT">
+      <UniqueIdentifier>{c585135e-4e41-445f-b5c2-8f22697c42c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="signal_processing_library.h">
@@ -69,10 +72,16 @@
     <ClInclude Include="response_measurement.h">
       <Filter>signal processing library</Filter>
     </ClInclude>
+    <ClInclude Include="kiss_fft.h">
+      <Filter>signal processing library\FFT</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="kiss_fft.c">
+      <Filter>signal processing library\FFT</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -21,40 +21,37 @@ using namespace std;
 int main()
 {
 	WAV* wavfile;
-	wavfile = wavfile_read("dukou_noReverb.wav");
+	wavfile = wavfile_read("dukou_noReverb.wav"); // input the ess to test.
 	size_t samplerate = wavfile->sampleRate;
 	size_t totalSample = wavfile->totalPCMFrameCount;
 	float* output = (float*)malloc(sizeof(float) * totalSample);	// mono data
 	// DBB initialize
 	DBB* db = createDBB(samplerate);
 	Biquad *prefilter = createBiquad(samplerate, FreFilterCoeffs[0], FreFilterCoeffs[1]);
-	Biquad *state1FIlter = createBiquad(samplerate, State1FilterCoeffs[0], State1FilterCoeffs[1]);
-	Biquad *state2FIlter = createBiquad(samplerate, State2FilterCoeffs[0], State2FilterCoeffs[1]);
-	RmsLimiter* state1Limiter = createRmsLimiter(-24, 5, 0.05, 0.2, 0, samplerate);
-	Compressor* state2SoftClip = createCompressor(-4.4, 6, 5, 0.05, 0.2, 0, samplerate);
+	Biquad *state1Filter = createBiquad(samplerate, State1FilterCoeffs[0], State1FilterCoeffs[1]);
+	Biquad *state2Filter = createBiquad(samplerate, State2FilterCoeffs[0], State2FilterCoeffs[1]);
+	RmsLimiter* state1Limiter = createRmsLimiter(-15, 1, 0.05, 0.2, 0, samplerate);
+	Compressor* state2SoftClip = createCompressor(-6, 6, 5, 0.05, 0.2, 0, samplerate);// 4.4
 	float tmp1 = 0;
 	float tmp2 = 0;
 	float tmp3 = 0;
 	float state1 = 0;
 	for (size_t n = 0; n < totalSample; n++)
 	{
-		runDBB(db, wavfile->pDataFloat[0][n], output[n]);
-		////runBiquad(state2FIlter, wavfile->pDataFloat[0][n] , tmp1);
-		//runBiquad(state1FIlter, tmp1, tmp2);
-		//state1 = tmp1 + runRmsLimiter(state1Limiter, tmp2, tmp3);
-		//// state 2
-		//runBiquad(state2FIlter, state1, tmp1);
-		//runCompressor(state2SoftClip, tmp1, tmp2);
-		//output[n] = (state1 + tmp2) * 0.5;
+		runDBB(db,wavfile->pDataFloat[0][n], output[n]);
+		//runBiquad(prefilter, wavfile->pDataFloat[0][n] , tmp1);
+		//runBiquad(state1Filter, tmp1, tmp2);
+		//output[n] = tmp1 + tmp2;
+
 		//output[n] = tmp1;
 	}
-	wavfile_write_f32("State22 output.wav", &output, totalSample, 1, samplerate);
+	wavfile_write_f32("DBB  output.wav", &output, totalSample, 1, samplerate);
 
 	wavfile_destory(wavfile);
 	freeDBB(db);
 	freeBiquad(prefilter);
-	freeBiquad(state1FIlter);
-	freeBiquad(state2FIlter);
+	freeBiquad(state1Filter);
+	freeBiquad(state2Filter);
 	freeRmsLimiter(state1Limiter);
 	freeCompressor(state2SoftClip);
 	return 0;
