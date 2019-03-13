@@ -17,45 +17,87 @@
 #include "peak_limiter.h"
 
 #include "dynamic_bass_boost.h"
+#include "kiss_fftr.h"
+#include <fstream>
+#include "response_measurement.h"
+
+#include "my_fft.h"
+#include "fft_convolver.h"
 using namespace std;
 int main()
 {
+	
 	WAV* wavfile;
-	wavfile = wavfile_read("dukou_noReverb.wav"); // input the ess to test.
+	wavfile = wavfile_read("dukou_noReverb.wav");			// input the ess to test.
 	size_t samplerate = wavfile->sampleRate;
 	size_t totalSample = wavfile->totalPCMFrameCount;
 	float* output = (float*)malloc(sizeof(float) * totalSample);	// mono data
-	// DBB initialize
-	DBB* db = createDBB(samplerate);
-	Biquad *prefilter = createBiquad(samplerate, FreFilterCoeffs[0], FreFilterCoeffs[1]);
-	Biquad *state1Filter = createBiquad(samplerate, State1FilterCoeffs[0], State1FilterCoeffs[1]);
-	Biquad *state2Filter = createBiquad(samplerate, State2FilterCoeffs[0], State2FilterCoeffs[1]);
-	RmsLimiter* state1Limiter = createRmsLimiter(-15, 1, 0.05, 0.2, 0, samplerate);
-	Compressor* state2SoftClip = createCompressor(-6, 6, 5, 0.05, 0.2, 0, samplerate);// 4.4
-	float tmp1 = 0;
-	float tmp2 = 0;
-	float tmp3 = 0;
-	float state1 = 0;
-	for (size_t n = 0; n < totalSample; n++)
-	{
-		runDBB(db,wavfile->pDataFloat[0][n], output[n]);
-		//runBiquad(prefilter, wavfile->pDataFloat[0][n] , tmp1);
-		//runBiquad(state1Filter, tmp1, tmp2);
-		//output[n] = tmp1 + tmp2;
+	float* input = (float*)malloc(sizeof(float) * totalSample);	// mono data
 
-		//output[n] = tmp1;
+	memcpy(input, wavfile->pDataFloat[0], totalSample * sizeof(float));
+
+	float *inputBuffer = (float*)malloc(sizeof(float)*1024);
+
+	kfComplex *outputBuffer = (kfComplex*)malloc(sizeof(kfComplex)*1024);
+
+	// DBB initialize
+	//DBB* db = createDBB(samplerate);
+	// FFT initialize
+
+	//kiss_fft_cfg fftPlan = kiss_fft_alloc(1024, -1, 0, 0); // 1024 points fft
+
+	rfftConfig rfftPlan = kiss_fftr_alloc(1024,0 , NULL, NULL); // 1: inverse 
+
+
+	for (size_t n = 0; n < 1024; n++)
+	{
+		inputBuffer[n] = input[n];
 	}
-	wavfile_write_f32("DBB  output.wav", &output, totalSample, 1, samplerate);
+	//kiss_fftr(rfftPlan, inputBuffer, outputBuffer);
+	runFft(rfftPlan, inputBuffer, outputBuffer);
+
+	float* convOutput =	fftConvolver(input, 1024, input, 1024);
+
+
+	freeFft(rfftPlan);
+
+	fstream fo;
+	fo.open("conv 2 .txt", ios::out);
+	for (size_t n = 0; n < 1024*2 -1; n++)
+	{
+		//printf("%d : %f  %f \n", n + 1, outputBuffer[n].r, outputBuffer[n].i);
+		//fo << outputBuffer[n].r << " + "<< outputBuffer[n].i << "j" << "\n";
+		fo << convOutput[n] << "\n";
+	}
+	float* ess = generateExpSineSweep(1, 1, 20e3, 48000);
+	wavfile_write_f32("inv ESS  output.wav", &ess, 48000, 1, 48000);
+	free(ess);
 
 	wavfile_destory(wavfile);
-	freeDBB(db);
-	freeBiquad(prefilter);
-	freeBiquad(state1Filter);
-	freeBiquad(state2Filter);
-	freeRmsLimiter(state1Limiter);
-	freeCompressor(state2SoftClip);
+	fo.close();
+	free(input);
+	free(output);
+	free(inputBuffer);
+	free(outputBuffer);
+	//freeDBB(db);
+
 	return 0;
 }
+/*
+1. ls50 DBB 算法的 c 语言实现
+	    ls50 DBB 算法的 state1 滤波器在我们所使用的版本中效果并不太理想，可以尝试将
+	cut-off freq 从 40 Hz 提升至 60 Hz，并增加 Q 值，更一般的情况是进行频响曲线拟合，
+	通过输入曲线和输出曲线，倒推出处理系统的曲线，然后进行拟合，将原有调参的过程交给
+	程序来处理。这样我们只需要给出目标曲线即可
+		之前混响模型中的调参模式也可以这么来，处理完这部分之后最好重新审视一下
+	那篇“使用遗传算法来进行混响模型参数提取”的论文。
+			2019-3-13 10:06:44 by jagger
+2. 频响测量法的移植
+	通过移植 matlab 版的频响测量法，加快调试的进程，并未后续的模型曲线拟合提供必要的工具
+	1. 需要引进 FFT 算法，目前待选的是 kissfft
+	2. 模拟 fftfilt 函数，实现卷积的功能
+	3. 建立一种较为通用的数据结构，用于在 C 和 matlab 中进行数据交互，有现成的最好
+*/
 /*
 	FILE *fp;
 	ofstream fo;

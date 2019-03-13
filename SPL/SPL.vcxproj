@@ -152,7 +152,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="kiss_fastfir.c" />
     <ClCompile Include="kiss_fft.c" />
+    <ClCompile Include="kiss_fftr.c" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,14 +163,18 @@
     <ClInclude Include="dr_wav.h" />
     <ClInclude Include="dsdfile.h" />
     <ClInclude Include="dynamic_bass_boost.h" />
+    <ClInclude Include="fft_convolver.h" />
     <ClInclude Include="frame.h" />
     <ClInclude Include="kiss_fft.h" />
+    <ClInclude Include="kiss_fftr.h" />
+    <ClInclude Include="my_fft.h" />
     <ClInclude Include="response_measurement.h" />
     <ClInclude Include="rms_limiter.h" />
     <ClInclude Include="peak_limiter.h" />
     <ClInclude Include="signal_processing_library.h" />
     <ClInclude Include="stream.h" />
     <ClInclude Include="wavfile.h" />
+    <ClInclude Include="_kiss_fft_guts.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

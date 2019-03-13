@@ -36,9 +36,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="signal_processing_library.h">
-      <Filter>signal processing library</Filter>
-    </ClInclude>
     <ClInclude Include="frame.h">
       <Filter>signal processing library</Filter>
     </ClInclude>
@@ -75,12 +72,33 @@
     <ClInclude Include="kiss_fft.h">
       <Filter>signal processing library\FFT</Filter>
     </ClInclude>
+    <ClInclude Include="_kiss_fft_guts.h">
+      <Filter>signal processing library\FFT</Filter>
+    </ClInclude>
+    <ClInclude Include="signal_processing_library.h">
+      <Filter>signal processing library\spectrum measurment</Filter>
+    </ClInclude>
+    <ClInclude Include="kiss_fftr.h">
+      <Filter>signal processing library\FFT</Filter>
+    </ClInclude>
+    <ClInclude Include="fft_convolver.h">
+      <Filter>signal processing library\FFT</Filter>
+    </ClInclude>
+    <ClInclude Include="my_fft.h">
+      <Filter>signal processing library\FFT</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="kiss_fft.c">
+      <Filter>signal processing library\FFT</Filter>
+    </ClCompile>
+    <ClCompile Include="kiss_fastfir.c">
+      <Filter>signal processing library\FFT</Filter>
+    </ClCompile>
+    <ClCompile Include="kiss_fftr.c">
       <Filter>signal processing library\FFT</Filter>
     </ClCompile>
   </ItemGroup>
