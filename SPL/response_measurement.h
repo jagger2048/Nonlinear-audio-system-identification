@@ -8,6 +8,8 @@
 #define M_PI 3.141592654
 #endif // !M_PI
 
+#include "fft_convolver.h"
+
 float* generateExpSineSweep(float duration, float f1, float f2, size_t samplerate) {
 	// Generate the exponential sine sweep signal
 	float w1 = 2 * M_PI*f1;
@@ -69,7 +71,8 @@ float* findSystemIR(float* recordedExpSineSweep, float duration, float f1, float
 
 	// generate inverse sinc sweep signal
 	float* invEss = generateInvExpSineSweep(duration, f1, f2, samplerate);
-
+	float* impulseResponse= 	fftConvolver(recordedExpSineSweep, duration*samplerate, invEss, duration*samplerate);
+	return impulseResponse;
 	// zero padding
 
 	// fftfilt()    or conv
@@ -77,7 +80,7 @@ float* findSystemIR(float* recordedExpSineSweep, float duration, float f1, float
 	//float* impulseResponse = conv(recordedExpSineSweep, invEssWithZeroPadding);
 
 	// use the impulse response to calculate the frequency response of a non-linear system
-	return NULL;
+	//return NULL;
 
 }
 

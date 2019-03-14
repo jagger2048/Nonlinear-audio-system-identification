@@ -24,62 +24,62 @@
 #include "my_fft.h"
 #include "fft_convolver.h"
 using namespace std;
-int main()
-{
-	
-	WAV* wavfile;
-	wavfile = wavfile_read("dukou_noReverb.wav");			// input the ess to test.
-	size_t samplerate = wavfile->sampleRate;
-	size_t totalSample = wavfile->totalPCMFrameCount;
-	float* output = (float*)malloc(sizeof(float) * totalSample);	// mono data
-	float* input = (float*)malloc(sizeof(float) * totalSample);	// mono data
 
-	memcpy(input, wavfile->pDataFloat[0], totalSample * sizeof(float));
+void convolverUtest() {
 
-	float *inputBuffer = (float*)malloc(sizeof(float)*1024);
+	// in :256 out:256 
+	float in[512]{};
+	float out[512]{};
+	float inBuffer[512]{};
+	kfComplex outBuffer1[512]{};
+	kfComplex outBuffer2[512]{};
+	kfComplex outBuffer3[512]{};
 
-	kfComplex *outputBuffer = (kfComplex*)malloc(sizeof(kfComplex)*1024);
-
-	// DBB initialize
-	//DBB* db = createDBB(samplerate);
-	// FFT initialize
-
-	//kiss_fft_cfg fftPlan = kiss_fft_alloc(1024, -1, 0, 0); // 1024 points fft
-
-	rfftConfig rfftPlan = kiss_fftr_alloc(1024,0 , NULL, NULL); // 1: inverse 
-
-
-	for (size_t n = 0; n < 1024; n++)
+	//cfftConfig* fft = createFftc(512);
+	rfftConfig* fft = createFft(512,false);
+	for (size_t n = 0; n < 256; n++)
 	{
-		inputBuffer[n] = input[n];
+		in[n] = 1;
 	}
-	//kiss_fftr(rfftPlan, inputBuffer, outputBuffer);
-	runFft(rfftPlan, inputBuffer, outputBuffer);
 
-	float* convOutput =	fftConvolver(input, 1024, input, 1024);
+	runFft(fft, in, outBuffer1);
+	runFft(fft, in, outBuffer2);
 
-
-	freeFft(rfftPlan);
+	//float* convOutput = fftConvolver(input, 1024, inputBuffer, 1024);
+	for (size_t n = 0; n < 512; n++)
+	{
+		outBuffer3[n].r = outBuffer1[n].r*outBuffer2[n].r - outBuffer1[n].i*outBuffer2[n].i;
+		outBuffer3[n].i = outBuffer1[n].r*outBuffer2[n].i + outBuffer1[n].i*outBuffer2[n].r;
+	}
+	setFft(fft, 512, true);
+	runIfft(fft, outBuffer3, out);// 需要除以 N 
 
 	fstream fo;
 	fo.open("conv 2 .txt", ios::out);
-	for (size_t n = 0; n < 1024*2 -1; n++)
+	for (size_t n = 0; n < 512; n++)
 	{
-		//printf("%d : %f  %f \n", n + 1, outputBuffer[n].r, outputBuffer[n].i);
-		//fo << outputBuffer[n].r << " + "<< outputBuffer[n].i << "j" << "\n";
-		fo << convOutput[n] << "\n";
+		//printf("%d : %f  %f \n", n + 1, outBuffer1[n].r, outBuffer1[n].i);
+		//printf("%d : %f  %f \n", n + 1, outBuffer3[n].r, outBuffer3[n].i);
+		//fo << outputBuffer[n].r << " + " << outputBuffer[n].i << "j" << "\n";
+		printf("%d : %f \n", n + 1, out[n]/512.0f);
+		//fo << convOutput[n] << "\n";
 	}
-	float* ess = generateExpSineSweep(1, 1, 20e3, 48000);
-	wavfile_write_f32("inv ESS  output.wav", &ess, 48000, 1, 48000);
-	free(ess);
-
-	wavfile_destory(wavfile);
+	fftConvolver(in, 256, in, 256);
 	fo.close();
-	free(input);
+	freeFft(fft);
+
+
+}
+int main()
+{
+	float* ess = generateExpSineSweep(1, 1, 20e3, 48000);
+
+	float* output = (float*)malloc(sizeof(float) * 1 * 48000);
+	findSystemIR(ess, 1, 1, 20e3, 48000);
+	wavfile_write_f32("inv ESS  output.wav", &output, 48000, 1, 48000);
+	
+	free(ess);
 	free(output);
-	free(inputBuffer);
-	free(outputBuffer);
-	//freeDBB(db);
 
 	return 0;
 }
