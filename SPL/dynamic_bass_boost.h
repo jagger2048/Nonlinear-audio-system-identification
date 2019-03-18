@@ -10,10 +10,8 @@
 };
 
  float State1FilterCoeffs[2][3] = {
-		//0.000868926863592,	2.527391006E-06,		-0.000866399472585,
-	  0.000028458000000000000954741494196831297  ,0.000053754000000000000674023337143836443  , 0.000028458000000000000954741494196831297  ,
-		//1,					-1.99789629951018,		0.997898465845326
-		 1,-1.991667999999999993931965036608744412661,   0.991703000000000001179500941361766308546
+		0.000868926863592,	2.527391006E-06,		-0.000866399472585,
+		1,					-1.99789629951018,		0.997898465845326
 };
 	  	
  float State2FilterCoeffs[2][3] = {
@@ -43,8 +41,8 @@ DBB* createDBB(size_t samplerate) {
 	obj->state1Filter = createBiquad(samplerate,State1FilterCoeffs[0], State1FilterCoeffs[1]);
 	obj->state2Filter = createBiquad(samplerate,State2FilterCoeffs[0], State2FilterCoeffs[1]);
 
-	obj->state1Limiter = createRmsLimiter(-24, 5, 0.05, 0.2, 0, samplerate);
-	obj->state2SoftClip = createCompressor(-24, 6,5, 0.05, 0.2, 0, samplerate);
+	obj->state1Limiter = createRmsLimiter(-15, 5, 0.05, 0.2, 0, samplerate);//-24
+	obj->state2SoftClip = createCompressor(-15, 6,5, 0.05, 0.2, 0, samplerate);//-24
 	obj->samplerate = samplerate;
 	return obj;
 }

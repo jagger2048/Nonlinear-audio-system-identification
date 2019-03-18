@@ -41,6 +41,11 @@ float* fftConvolver(float* seqA, size_t lenA, float* seqB, size_t lenB) {
 	setFft(fftPlan, len,true);			
 	runIfft(fftPlan, fftTmpC,output );	// ifft
 
+	for (size_t n = 0; n < len; n++)	
+	{
+		output[n] = output[n] / (float)(len);
+	}
+
 	free(bufferA);
 	free(bufferB);
 	free(fftTmpA);

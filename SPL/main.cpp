@@ -23,80 +23,105 @@
 
 #include "my_fft.h"
 #include "fft_convolver.h"
+#include <math.h>
 using namespace std;
 
-void convolverUtest() {
+void irUnitTest() {
 
-	// in :256 out:256 
-	float in[512]{};
-	float out[512]{};
-	float inBuffer[512]{};
-	kfComplex outBuffer1[512]{};
-	kfComplex outBuffer2[512]{};
-	kfComplex outBuffer3[512]{};
+	float fs = 48e3;
+	float f1 = 1;
+	float f2 = 20e3;
+	float duration = 1;
+	size_t len = duration * fs;
+	float* ess = generateExpSineSweep(duration, f1, f2, fs);
+	float* yFiltered = (float*)malloc(sizeof(float)*len);
+	//Biquad* filter = createBiquad(fs, State2FilterCoeffs[0], State2FilterCoeffs[1]);
 
-	//cfftConfig* fft = createFftc(512);
-	rfftConfig* fft = createFft(512,false);
-	for (size_t n = 0; n < 256; n++)
+	float coefs[2][3] = { 
+		{ 0.00391612666054739,	0.00783225332109477,	0.00391612666054739} ,
+		{ 1, - 1.81534108270457,	0.831005589346757 }
+	};
+	Biquad* filter = createBiquad(fs,coefs[0],coefs[1]);
+	for (size_t n = 0; n < len; n++)
 	{
-		in[n] = 1;
+		runBiquad(filter, ess[n], yFiltered[n]);
 	}
+	float* mag_db =  findSystemIR(yFiltered, duration, f1,f2, fs);
+	
 
-	runFft(fft, in, outBuffer1);
-	runFft(fft, in, outBuffer2);
-
-	//float* convOutput = fftConvolver(input, 1024, inputBuffer, 1024);
-	for (size_t n = 0; n < 512; n++)
-	{
-		outBuffer3[n].r = outBuffer1[n].r*outBuffer2[n].r - outBuffer1[n].i*outBuffer2[n].i;
-		outBuffer3[n].i = outBuffer1[n].r*outBuffer2[n].i + outBuffer1[n].i*outBuffer2[n].r;
-	}
-	setFft(fft, 512, true);
-	runIfft(fft, outBuffer3, out);// 需要除以 N 
 
 	fstream fo;
-	fo.open("conv 2 .txt", ios::out);
-	for (size_t n = 0; n < 512; n++)
+	fo.open("biquad out5.txt", ios::out);
+	for (size_t n = 0; n < len+1 ; n++)
 	{
-		//printf("%d : %f  %f \n", n + 1, outBuffer1[n].r, outBuffer1[n].i);
-		//printf("%d : %f  %f \n", n + 1, outBuffer3[n].r, outBuffer3[n].i);
-		//fo << outputBuffer[n].r << " + " << outputBuffer[n].i << "j" << "\n";
-		printf("%d : %f \n", n + 1, out[n]/512.0f);
-		//fo << convOutput[n] << "\n";
+		fo << mag_db[n]<< "\n";
 	}
-	fftConvolver(in, 256, in, 256);
+	//wavfile_write_f32("inv ESS  impulse.wav", &impulse, 48000, 1, 48000);
 	fo.close();
-	freeFft(fft);
+	free(ess);
+	free(yFiltered);
+	free(mag_db);
 
+	// test passed
+}
+
+void dbbUintTest() {
+	// This is the DBB algorithm test.
+	// generate exponental sine sweep signal 1~20kHz,duration 1 s
+	float fs = 48e3;
+	float f1 = 1;
+	float f2 = 20e3;
+	float duration = 1;
+	size_t len = duration * fs;
+	float* ess = generateExpSineSweep(duration, f1, f2, fs);
+
+	float* yFiltered = (float*)malloc(sizeof(float)*len);
+	DBB* dbb = createDBB(fs);
+	for (size_t n = 0; n < len; n++)
+	{
+		runDBB(dbb, ess[n], yFiltered[n]);
+	}
+	float* ir_mag = findSystemIR(yFiltered, duration, f1, f2, fs);
+	
+	// output the response of the DBB system
+	fstream fo;
+	fo.open("dbb mag full scale.txt", ios::out);
+	for (size_t n = 0; n < len + 1; n++)
+	{
+		fo << ir_mag[n] << "\n";
+	}
+	fo.close();
+	free(ess);
+	free(yFiltered);
+	free(ir_mag);
+	freeDBB(dbb);
 
 }
 int main()
 {
-	float* ess = generateExpSineSweep(1, 1, 20e3, 48000);
-
-	float* output = (float*)malloc(sizeof(float) * 1 * 48000);
-	findSystemIR(ess, 1, 1, 20e3, 48000);
-	wavfile_write_f32("inv ESS  output.wav", &output, 48000, 1, 48000);
-	
-	free(ess);
-	free(output);
+	dbbUintTest();
 
 	return 0;
 }
 /*
-1. ls50 DBB 算法的 c 语言实现
-	    ls50 DBB 算法的 state1 滤波器在我们所使用的版本中效果并不太理想，可以尝试将
+1. DBB 算法的 c 语言实现
+	   DBB 算法的 state1 滤波器在我们所使用的版本中效果并不太理想，可以尝试将
 	cut-off freq 从 40 Hz 提升至 60 Hz，并增加 Q 值，更一般的情况是进行频响曲线拟合，
 	通过输入曲线和输出曲线，倒推出处理系统的曲线，然后进行拟合，将原有调参的过程交给
 	程序来处理。这样我们只需要给出目标曲线即可
 		之前混响模型中的调参模式也可以这么来，处理完这部分之后最好重新审视一下
 	那篇“使用遗传算法来进行混响模型参数提取”的论文。
 			2019-3-13 10:06:44 by jagger
+	- 2019年3月18日17:24:02 补充
+		在完成使用正弦扫频信号测量频响后，对所设计的系统进行了频响测试，发现在较低的输入幅度
+		下，输出的信号无法达到预期的增益值
+
 2. 频响测量法的移植
 	通过移植 matlab 版的频响测量法，加快调试的进程，并未后续的模型曲线拟合提供必要的工具
-	1. 需要引进 FFT 算法，目前待选的是 kissfft
-	2. 模拟 fftfilt 函数，实现卷积的功能
-	3. 建立一种较为通用的数据结构，用于在 C 和 matlab 中进行数据交互，有现成的最好
+	-1. 需要引进 FFT 算法，目前待选的是 kissfft
+	-2. 模拟 fftfilt 函数，实现卷积的功能
+	-3. 建立一种较为通用的数据结构，用于在 C 和 matlab 中进行数据交互，有现成的最好
+		暂时使用 txt,后续可以考虑 csv json
 */
 /*
 	FILE *fp;
