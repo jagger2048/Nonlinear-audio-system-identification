@@ -120,10 +120,10 @@ float runCompressor(Compressor* obj, float input, float& output) {
 static inline int freeCompressor(Compressor *obj) {
 	if (!obj)
 	{
-		free(obj);
-		return 0;
+		return -1;
 	}
-	return -1;
+	free(obj);
+	return 0;
 }
 
 

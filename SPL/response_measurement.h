@@ -67,11 +67,11 @@ float* generateInvExpSineSweep(float duration, float f1, float f2, size_t sample
 	//invsweep = invsweep / max(abs(invsweep));
 }
 
-float* findSystemIR(float* recordedExpSineSweep, float duration, float f1, float f2, size_t samplerate) {
+float* findSystemIR(float* recordedExpSineSweep, float duration, float f1, float f2, size_t samplerate, float* impulseResponse) {
 	// Fine the impulse response of the non-linear system.
 	// generate inverse sinc sweep signal
 	float* invEss = generateInvExpSineSweep(duration, f1, f2, samplerate);
-	float* impulseResponse= fftConvolver(recordedExpSineSweep, duration*samplerate, invEss, duration*samplerate);
+	impulseResponse= fftConvolver(recordedExpSineSweep, duration*samplerate, invEss, duration*samplerate);
 
 	size_t len = (duration*samplerate*2) / 2 * 2;// lenA lenB
 
@@ -88,7 +88,7 @@ float* findSystemIR(float* recordedExpSineSweep, float duration, float f1, float
 	{
 		impulseResponse[n] /= max;
 	}
-	printf("max is:%f", max);
+	//printf("max is:%f", max);
 	// calculate the system's response
 	rfftConfig* fftPlan = createFft(len, false);
 	kfComplex *yIr = (kfComplex*)malloc(sizeof(kfComplex)*len);

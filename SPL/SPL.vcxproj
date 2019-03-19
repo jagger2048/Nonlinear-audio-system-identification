@@ -163,6 +163,7 @@
     <ClInclude Include="dr_wav.h" />
     <ClInclude Include="dsdfile.h" />
     <ClInclude Include="dynamic_bass_boost.h" />
+    <ClInclude Include="dynamic_bass_boost2.h" />
     <ClInclude Include="fft_convolver.h" />
     <ClInclude Include="frame.h" />
     <ClInclude Include="kiss_fft.h" />

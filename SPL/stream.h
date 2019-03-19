@@ -83,11 +83,10 @@ spl_stream_st * audio_stream_open(const char* file_name) {
 int audio_stream_close(spl_stream_st * pStream) {
 	if (!pStream)
 	{
-		fclose(pStream->fp);
-		return 0;
-
+		return -1;
 	}
-	return -1;
+	fclose(pStream->fp);
+	return 0;
 } // close audio stream
 //
 //int open_pcm_stream_and_read_f32(spl_frame_p pFrame,size_t frame_size);

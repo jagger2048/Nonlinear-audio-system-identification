@@ -123,8 +123,8 @@ float runRmsLimiter(RmsLimiter* obj, float input, float& output) {
 static inline int freeRmsLimiter(RmsLimiter *obj) {
 	if (!obj)
 	{
-		free(obj);
-		return 0;
+		return -1;
 	}
-	return -1;
+	free(obj);
+	return 0;
 }

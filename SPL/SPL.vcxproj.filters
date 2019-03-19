@@ -34,14 +34,17 @@
     <Filter Include="signal processing library\FFT">
       <UniqueIdentifier>{c585135e-4e41-445f-b5c2-8f22697c42c3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="signal processing library\others">
+      <UniqueIdentifier>{6ed3c13a-6a49-4694-acb1-e12f36bbc073}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="signal processing library\filters">
+      <UniqueIdentifier>{21008413-19d7-43fa-aad6-19858c9ce686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="signal processing library\EQ">
+      <UniqueIdentifier>{aba38c49-4995-49ac-bf7f-99ae3c10449d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="frame.h">
-      <Filter>signal processing library</Filter>
-    </ClInclude>
-    <ClInclude Include="stream.h">
-      <Filter>signal processing library</Filter>
-    </ClInclude>
     <ClInclude Include="dr_wav.h">
       <Filter>signal processing library\audio file</Filter>
     </ClInclude>
@@ -60,23 +63,11 @@
     <ClInclude Include="peak_limiter.h">
       <Filter>signal processing library\dynamics processor</Filter>
     </ClInclude>
-    <ClInclude Include="biquad.h">
-      <Filter>signal processing library</Filter>
-    </ClInclude>
-    <ClInclude Include="dynamic_bass_boost.h">
-      <Filter>signal processing library</Filter>
-    </ClInclude>
-    <ClInclude Include="response_measurement.h">
-      <Filter>signal processing library</Filter>
-    </ClInclude>
     <ClInclude Include="kiss_fft.h">
       <Filter>signal processing library\FFT</Filter>
     </ClInclude>
     <ClInclude Include="_kiss_fft_guts.h">
       <Filter>signal processing library\FFT</Filter>
-    </ClInclude>
-    <ClInclude Include="signal_processing_library.h">
-      <Filter>signal processing library\spectrum measurment</Filter>
     </ClInclude>
     <ClInclude Include="kiss_fftr.h">
       <Filter>signal processing library\FFT</Filter>
@@ -86,6 +77,27 @@
     </ClInclude>
     <ClInclude Include="my_fft.h">
       <Filter>signal processing library\FFT</Filter>
+    </ClInclude>
+    <ClInclude Include="signal_processing_library.h">
+      <Filter>signal processing library\basic tools</Filter>
+    </ClInclude>
+    <ClInclude Include="frame.h">
+      <Filter>signal processing library\basic tools</Filter>
+    </ClInclude>
+    <ClInclude Include="stream.h">
+      <Filter>signal processing library\basic tools</Filter>
+    </ClInclude>
+    <ClInclude Include="biquad.h">
+      <Filter>signal processing library\filters</Filter>
+    </ClInclude>
+    <ClInclude Include="dynamic_bass_boost.h">
+      <Filter>signal processing library\EQ</Filter>
+    </ClInclude>
+    <ClInclude Include="response_measurement.h">
+      <Filter>signal processing library\spectrum measurment</Filter>
+    </ClInclude>
+    <ClInclude Include="dynamic_bass_boost2.h">
+      <Filter>signal processing library\EQ</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

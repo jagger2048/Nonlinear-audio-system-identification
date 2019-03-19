@@ -9,7 +9,7 @@ typedef struct {
 
 	//float w0, w1, w2;
 	float x1, x2, y1, y2;
-	bool isInitialized;
+	//bool isInitialized;
 }
 Biquad;
 
@@ -27,17 +27,22 @@ static inline void resetBiquad(Biquad *obj) {
 	obj->y1 = 0;
 	obj->y2 = 0;
 }
-
-Biquad* createBiquad(size_t samplerate, float coeffs_b[3], float coeffs_a[3]) {
+Biquad* newBiquad(size_t samplerate) {
 	Biquad* obj = (Biquad*)malloc(sizeof(Biquad));
 	if (!obj)
 	{
-		return NULL;
+		return NULL;// throw erroe
 	}
-	obj->isInitialized = false;
+	else
+	{
+		obj->samplerate = samplerate;
+		resetBiquad(obj);
+		return obj;
+	}
+}
+Biquad* createBiquad(size_t samplerate, float coeffs_b[3], float coeffs_a[3]) {
+	Biquad* obj = newBiquad(samplerate);
 	setBiquad(obj, samplerate, coeffs_b, coeffs_a);
-	resetBiquad(obj);
-	obj->isInitialized = true;
 	return obj;
 }
 static inline float runBiquad(Biquad* obj, float sample_in, float &sample_out) {
@@ -65,8 +70,8 @@ static inline float runBiquad(Biquad* obj, float sample_in, float &sample_out) {
 int freeBiquad(Biquad* obj) {
 	if (!obj)
 	{
-		free(obj);
-		return 0;
+		return -1;
 	}
-	return -1;
+	free(obj);
+	return 0;
 }

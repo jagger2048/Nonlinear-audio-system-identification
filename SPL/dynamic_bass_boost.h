@@ -19,7 +19,7 @@
 		1,					-1.99615925409839,		0.996166468952456
 };
 
-// It's a C version Dynamic Bass Boost algorithm proted from Sigma Projec.
+// It's a C version Dynamic Bass Boost algorithm proted from Sigma Project.
 typedef struct {
 	Biquad* preFilter;
 	Biquad* state1Filter;
@@ -68,14 +68,14 @@ float runDBB(DBB* obj, float sample_in, float &sample_out) {
 }
 int freeDBB(DBB*obj) {
 	if (!obj) {
-		freeBiquad(obj->preFilter);
-		freeBiquad(obj->state1Filter);
-		freeBiquad(obj->state2Filter);
-		freeRmsLimiter(obj->state1Limiter);
-		freeCompressor(obj->state2SoftClip);
-		free(obj);
-		return 0;
+		return -1;
 	}
-	return -1;
+	freeBiquad(obj->preFilter);
+	freeBiquad(obj->state1Filter);
+	freeBiquad(obj->state2Filter);
+	freeRmsLimiter(obj->state1Limiter);
+	freeCompressor(obj->state2SoftClip);
+	free(obj);
+	return 0;
 }
 

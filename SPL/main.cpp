@@ -24,6 +24,7 @@
 #include "my_fft.h"
 #include "fft_convolver.h"
 #include <math.h>
+#include "dynamic_bass_boost2.h"
 using namespace std;
 
 void irUnitTest() {
@@ -46,7 +47,8 @@ void irUnitTest() {
 	{
 		runBiquad(filter, ess[n], yFiltered[n]);
 	}
-	float* mag_db =  findSystemIR(yFiltered, duration, f1,f2, fs);
+	float* ir;
+	float* mag_db =  findSystemIR(yFiltered, duration, f1,f2, fs,ir);
 	
 
 
@@ -61,11 +63,11 @@ void irUnitTest() {
 	free(ess);
 	free(yFiltered);
 	free(mag_db);
-
+	free(ir);
 	// test passed
 }
 
-void dbbUintTest() {
+void dbbUnitTest() {
 	// This is the DBB algorithm test.
 	// generate exponental sine sweep signal 1~20kHz,duration 1 s
 	float fs = 48e3;
@@ -81,7 +83,8 @@ void dbbUintTest() {
 	{
 		runDBB(dbb, ess[n], yFiltered[n]);
 	}
-	float* ir_mag = findSystemIR(yFiltered, duration, f1, f2, fs);
+	float* ir;
+	float* ir_mag = findSystemIR(yFiltered, duration, f1, f2, fs,ir);
 	
 	// output the response of the DBB system
 	fstream fo;
@@ -94,35 +97,55 @@ void dbbUintTest() {
 	free(ess);
 	free(yFiltered);
 	free(ir_mag);
+	free(ir);
 	freeDBB(dbb);
+
+}
+void dbb2UnitTest_refactor() {
+	// generate exponental sine sweep signal
+	float fs = 48e3;
+	float f1 = 1;
+	float f2 = 20e3;
+	float duration = 1;
+	size_t len = duration * fs;
+	float* ess = generateExpSineSweep(duration, f1, f2, fs);
+	float* essProcessed = (float*)malloc(sizeof(float)*len);
+
+	// your processing here
+	float boostFreq = 60;
+	float boostGain = 16;
+	DBB2* dbb = createDbb2(boostFreq, boostGain, 1.5, fs);
+	for (size_t n = 0; n < len; n++)
+	{
+		runDbb2(dbb, 0.02*ess[n], essProcessed[n]);
+	}
+
+	freeDbb2(dbb);
+	//
+
+		// find the impulse response of DBB 
+	float* ir;
+	float* ir_mag = findSystemIR(essProcessed, duration, f1, f2, fs,ir);
+	fstream fo;
+	fo.open("dbb2 mag full scale refactor 002.txt", ios::out);
+	for (size_t n = 0; n < len + 1; n++)
+	{
+		fo << ir_mag[n] << "\n";
+	}
+	fo.close();
+	free(ir_mag);
+	free(ir);
+	free(ess);
+	free(essProcessed);
 
 }
 int main()
 {
-	dbbUintTest();
+	dbb2UnitTest_refactor();
 
 	return 0;
 }
-/*
-1. DBB 算法的 c 语言实现
-	   DBB 算法的 state1 滤波器在我们所使用的版本中效果并不太理想，可以尝试将
-	cut-off freq 从 40 Hz 提升至 60 Hz，并增加 Q 值，更一般的情况是进行频响曲线拟合，
-	通过输入曲线和输出曲线，倒推出处理系统的曲线，然后进行拟合，将原有调参的过程交给
-	程序来处理。这样我们只需要给出目标曲线即可
-		之前混响模型中的调参模式也可以这么来，处理完这部分之后最好重新审视一下
-	那篇“使用遗传算法来进行混响模型参数提取”的论文。
-			2019-3-13 10:06:44 by jagger
-	- 2019年3月18日17:24:02 补充
-		在完成使用正弦扫频信号测量频响后，对所设计的系统进行了频响测试，发现在较低的输入幅度
-		下，输出的信号无法达到预期的增益值
 
-2. 频响测量法的移植
-	通过移植 matlab 版的频响测量法，加快调试的进程，并未后续的模型曲线拟合提供必要的工具
-	-1. 需要引进 FFT 算法，目前待选的是 kissfft
-	-2. 模拟 fftfilt 函数，实现卷积的功能
-	-3. 建立一种较为通用的数据结构，用于在 C 和 matlab 中进行数据交互，有现成的最好
-		暂时使用 txt,后续可以考虑 csv json
-*/
 /*
 	FILE *fp;
 	ofstream fo;

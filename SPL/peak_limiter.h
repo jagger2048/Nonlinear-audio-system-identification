@@ -121,8 +121,8 @@ float runPeakLimiter(PeakLimiter* obj, float input, float& output) {
 static inline int freePeakLimiter(PeakLimiter *obj) {
 	if (!obj)
 	{
-		free(obj);
-		return 0;
+		return -1;
 	}
-	return -1;
+	free(obj);
+	return 0;
 }
