@@ -1,8 +1,8 @@
 # Nonlinear audio system identification
 
-This is a tool that find the impulse response of a nonlinear system, it can be used in the audio system with nonlinear processor, .e.g. audio limiter, compressor.
+This is a tool that finds the impulse response of a nonlinear system, it can be used in the audio system with a nonlinear processor, .e.g. audio limiter, compressor.
 
-The identification algorithm is based on exponential sine sweep, ESS, signal and aim to find the impulse response of the tested system, which can be treat as a `black box`.
+The identification algorithm is based on exponential sine sweep, ESS, signal and aims to find the impulse response of the tested system, which can be treat as a `black box`.
 
 ## Usage
 
@@ -54,5 +54,13 @@ In the other hand, you can use the method to test a dark box system and check th
 
 
 
-## Performance
+## example 
+
+At this part, we will show how to detect a practical system. Assume the model of the system is to change the output following the magnitude of the input, just like this:
+
+![Block diagram](assets/clip_image001.png)
+
+Now we can enter different magnitude ESS signals generated from `generateExpSineSweep()` function. And then record the output of the system. Usually, the model is a c function translates from your MATLAB code. Finally, use the `findSystemIR()` function to capture the impulse response of different input, then analysis and check the result. Below is the frequency response of a dynamic bass boost EQ system tested by this tool:
+
+![1553048815928](assets/1553048815928.png)
 
