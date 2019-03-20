@@ -2,18 +2,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-
-#include "wavfile.h"
-#include "dr_wav.h"
-
-#include <fstream>
-#include <iostream>
 #include <fstream>
 
-#include <math.h>
-#include "dynamic_bass_boost2.h"
-#include "dynamic_bass_boost.h"
 #include "response_measurement.h"
+#include "biquad.h"
 using namespace std;
 
 void irUnitTest() {
@@ -41,7 +33,7 @@ void irUnitTest() {
 
 
 	fstream fo;
-	fo.open("biquad out5.txt", ios::out);
+	fo.open("biquad mag out.txt", ios::out);
 	for (size_t n = 0; n < len+1 ; n++)
 	{
 		fo << mag_db[n]<< "\n";
@@ -56,7 +48,7 @@ void irUnitTest() {
 
 int main()
 {
-	dbbUnitTest();
+	irUnitTest();
 
 	return 0;
 }
